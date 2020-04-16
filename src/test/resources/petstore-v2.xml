@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="petStore"
+          class="org.deppwang.litespring.v2.service.PetStoreService">
+        <property name="account" ref="account"/>
+        <property name="item" ref="item"/>
+    </bean>
+
+    <bean id="account" class="org.deppwang.litespring.v2.entry.Account">
+    </bean>
+
+    <bean id="item" class="org.deppwang.litespring.v2.entry.Item">
+    </bean>
+</beans>
