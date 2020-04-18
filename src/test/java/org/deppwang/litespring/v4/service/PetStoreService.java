@@ -1,23 +1,25 @@
 package org.deppwang.litespring.v4.service;
 
-import org.deppwang.litespring.v4.entry.Account;
-import org.deppwang.litespring.v4.entry.Item;
+import org.deppwang.litespring.v4.dao.AccountDao;
 import org.deppwang.litespring.v4.stereotype.Autowired;
 import org.deppwang.litespring.v4.stereotype.Component;
 
+/**
+ * @Service 注解中包含 @Component
+ * petStore 为 PetStoreService 在容器中的 id
+ */
 @Component(value = "petStore")
 public class PetStoreService {
     @Autowired
-    private Account account;
+    private AccountDao accountDao;
 
-    @Autowired
-    private Item item;
+    String name = "petStore";
 
-    public Account getAccount() {
-        return account;
+    public AccountDao getAccountDao() {
+        return accountDao;
     }
 
-    public Item getItem() {
-        return item;
+    public String getName() {
+        return name;
     }
 }

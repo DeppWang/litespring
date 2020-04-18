@@ -5,14 +5,10 @@
 
     <bean id="petStore"
           class="org.deppwang.litespring.v3.service.PetStoreService">
-        <property name="account" ref="account"/>
-        <property name="item" ref="item"/>
-        <!--<property name="str" value="123"/>-->
+        <property name="accountDao" ref="accountDao"/>
+        <!--<property name="name" value="petStore"/>-->
     </bean>
 
-    <bean id="account" class="org.deppwang.litespring.v3.entry.Account">
-    </bean>
-
-    <bean id="item" class="org.deppwang.litespring.v3.entry.Item">
+    <bean id="accountDao" class="org.deppwang.litespring.v3.dao.AccountDao">
     </bean>
 </beans>

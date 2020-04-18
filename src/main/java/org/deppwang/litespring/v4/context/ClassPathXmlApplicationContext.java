@@ -1,5 +1,7 @@
-package org.deppwang.litespring.v4;
+package org.deppwang.litespring.v4.context;
 
+import org.deppwang.litespring.v4.BeanDefinition;
+import org.deppwang.litespring.v4.BeanFactory;
 import org.deppwang.litespring.v4.annotation.AnnotationMetadata;
 import org.deppwang.litespring.v4.stereotype.Autowired;
 import org.deppwang.litespring.v4.stereotype.Component;
@@ -38,6 +40,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     // 使用 ConcurrentHashMap 存放所有单例 Bean
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(64);
 
+    // 存放注解
     private final Set<Class<? extends Annotation>> autowiredAnnotationTypes =
             new LinkedHashSet<>();
 
@@ -138,6 +141,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      */
     public AnnotationMetadata getAnnotationMetadata(File file) throws IOException {
 
+        // file 是路径，is 相当于字节码文件？
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         ClassReader classReader;
 
@@ -258,7 +262,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
     /**
      * 利用反射，将属性与对象关联
-     * <p>
+     * 没有 setter 方法，利用 Field 的field.set()；有 setter 方法，利用 PropertyDescriptor 的 Method.invoke()
      *
      * @param bean
      */
@@ -285,7 +289,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 查看 field 是否有注解
+     * 查看 field 是否有注解。
      *
      * @param ao
      * @return
@@ -302,7 +306,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 查看 field 是否有 annotationType 类型的注解
+     * 通过反射，查看 field 是否有 annotationType 类型的注解
      *
      * @param ae
      * @param annotationType

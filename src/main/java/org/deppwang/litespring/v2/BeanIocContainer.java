@@ -147,20 +147,21 @@ public class BeanIocContainer {
 
     /**
      * 填充属性（依赖注入）
+     * 有 setter 方法，利用 PropertyDescriptor 的 Method.invoke()；没有 setter 方法，利用 Field 的 field.set()
      *
      * @param bd
      * @param bean
      */
-    void populateBean(BeanDefinition bd, Object bean) {
-        List<String> pns = bd.getPropertyNames();
+    private void populateBean(BeanDefinition bd, Object bean) {
+        List<String> propertyNames = bd.getPropertyNames();
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
             PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-            for (String pn : pns) {
-                Object propertyBean = getBean(pn);
+            for (String propertyName : propertyNames) {
+                Object propertyBean = getBean(propertyName);
                 for (PropertyDescriptor pd : pds) {
-                    if (pd.getName().equals(pn)) {
-                        // 利用反射（Method.invoke()），通过 setter 方法为 bean 设置属性
+                    if (pd.getName().equals(propertyName)) {
+                        // 利用反射（Method.invoke()），通过 setter 方法将 bean 的属性关联到对象实例
                         pd.getWriteMethod().invoke(bean, propertyBean);
                         break;
                     }

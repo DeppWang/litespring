@@ -1,6 +1,6 @@
-package org.deppwang.litespring.v3.entry;
+package org.deppwang.litespring.v3.dao;
 
-public class Account {
+public class AccountDao {
     String name = "test";
 
     public void getName() {

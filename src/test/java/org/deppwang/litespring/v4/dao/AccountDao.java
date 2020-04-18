@@ -1,8 +1,8 @@
-package org.deppwang.litespring.v4.entry;
+package org.deppwang.litespring.v4.dao;
 
 import org.deppwang.litespring.v4.stereotype.Component;
 
 @Component
-public class Account {
+public class AccountDao {
     String name = "test";
 }

@@ -169,7 +169,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         return null;
     }
 
-    void populateBean(BeanDefinition bd, Object bean) {
+    private void populateBean(BeanDefinition bd, Object bean) {
         List<String> pns = bd.getPropertyNames();
         // 通过 Method.invoke() 设置属性到 bean 中
         try {

@@ -136,7 +136,7 @@ public class XmlBeanFactory implements BeanFactory {
         return null;
     }
 
-    void populateBean(BeanDefinition bd, Object bean) {
+    private void populateBean(BeanDefinition bd, Object bean) {
         List<String> pns = bd.getPropertyNames();
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());

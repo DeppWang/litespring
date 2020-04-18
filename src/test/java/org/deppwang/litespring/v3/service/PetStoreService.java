@@ -1,26 +1,18 @@
 package org.deppwang.litespring.v3.service;
 
-import org.deppwang.litespring.v3.entry.Account;
-import org.deppwang.litespring.v3.entry.Item;
+import org.deppwang.litespring.v3.dao.AccountDao;
 
 public class PetStoreService {
-    private Account account;
+    private AccountDao accountDao;
 
-    private Item item;
+//    String name = "petStore";
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
     }
 
-    public Account getAccount() {
-        return account;
+    public AccountDao getAccountDao() {
+        return accountDao;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
-    public Item getItem() {
-        return item;
-    }
 }

@@ -1,26 +1,27 @@
 package org.deppwang.litespring.v2.service;
 
-import org.deppwang.litespring.v2.entry.Account;
-import org.deppwang.litespring.v2.entry.Item;
+import org.deppwang.litespring.v2.dao.AccountDao;
 
 public class PetStoreService {
-    private Account account;
 
-    private Item item;
 
-    public void setAccount(Account account) {
-        this.account = account;
+    // 1、使用 Setter 方法
+    AccountDao accountDao;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
     }
 
-    public Account getAccount() {
-        return account;
+    public AccountDao getAccountDao() {
+        return accountDao;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
-    }
 
-    public Item getItem() {
-        return item;
-    }
+    // 2、使用构造函数
+//    AccountDao accountDao;
+//
+//    public PetStoreService(AccountDao accountDao) {
+//        this.accountDao = accountDao;
+//    }
+
 }
