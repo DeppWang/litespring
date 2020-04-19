@@ -214,9 +214,11 @@ com.amy.cloud.amycloudact.ProviderAppConfiguration
 ...
 ```
 
+嗯，本节没有源码
+
 ## 五、结语
 
-以上主要实现了 Spring 如何作为一个 IoC 容器，顺便说了一下 Spring Boot 原理。当然，Spring 还有很多重要功能，如：Bean 生命周期管理（回收）、AOP 的实现，等等。后续有机会再做一次分享。
+以上实现了一个简易的 Spring IoC 容器，顺便说了一下 Spring Boot 原理。Spring 还有很多重要功能，如：管理 Bean 生命周期、AOP 的实现，等等。后续有机会再做一次分享。
 
 在 Spring Boot 主
 
