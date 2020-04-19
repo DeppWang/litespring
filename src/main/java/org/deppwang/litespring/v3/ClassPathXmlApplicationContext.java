@@ -126,6 +126,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
     /**
      * 将单例 Bean 存放到 singletonObjects 中
+     *
      * @param beanName
      * @param singletonObject
      */
@@ -139,6 +140,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
     /**
      * 根据 beanName，从 singletonObjects 中获取到实例
+     *
      * @param beanName
      * @return
      */
@@ -160,7 +162,6 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String beanClassName = bd.getBeanClassName();
         try {
-            // 根据 className，利用反射创建 Bean 实例
             Class<?> clz = cl.loadClass(beanClassName);
             return clz.newInstance();
         } catch (Exception e) {
@@ -171,7 +172,6 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
     private void populateBean(BeanDefinition bd, Object bean) {
         List<String> pns = bd.getPropertyNames();
-        // 通过 Method.invoke() 设置属性到 bean 中
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
             PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
@@ -179,7 +179,6 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
                 Object propertyBean = getBean(pn);
                 for (PropertyDescriptor pd : pds) {
                     if (pd.getName().equals(pn)) {
-                        // 通过 setter 方法为 bean 设置属性
                         pd.getWriteMethod().invoke(bean, propertyBean);
                         break;
                     }

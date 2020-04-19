@@ -10,7 +10,7 @@ public class BeanDefinition {
     // id 是 beanName（类名）
     private String id;
 
-    // 全限定名。利用反射，可通过全限定名生成 Bean 实例
+    // 全限定名。可利用反射，可通过全限定名生成 Bean 实例
     private String beanClassName;
 
     // 存放 Bean 的属性名称

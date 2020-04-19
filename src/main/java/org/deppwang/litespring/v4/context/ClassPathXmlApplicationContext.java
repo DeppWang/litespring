@@ -135,6 +135,8 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     /**
      * 利用字节码技术，将注解元数据存放在 AnnotationMetadata 中，一个 file 对应一个 AnnotationMetadata
      *
+     * 待优化：去除 AnnotationMetadata，直接获取注解
+     *
      * @param file
      * @return
      * @throws IOException
@@ -143,6 +145,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
         // file 是路径，is 相当于字节码文件？
         InputStream is = new BufferedInputStream(new FileInputStream(file));
+        // 此时使用了 Spring 框架的 ClassReader，待优化为使用原生类
         ClassReader classReader;
 
         try {

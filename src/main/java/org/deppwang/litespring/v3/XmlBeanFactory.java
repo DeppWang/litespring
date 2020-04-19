@@ -84,6 +84,10 @@ public class XmlBeanFactory implements BeanFactory {
 
     }
 
+//    private boolean hasLength(String str) {
+//        return str != null && !str.isEmpty();
+//    }
+
 
     public Object getBean(String beanId) {
         BeanDefinition bd = this.getBeanDefinition(beanId);
