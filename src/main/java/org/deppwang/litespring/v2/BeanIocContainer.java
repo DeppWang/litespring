@@ -16,24 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * IoC 容器，本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 BeanDefinition
- */
 public class BeanIocContainer {
 
-    // 使用 Map 存放所有 BeanDefinition，ConcurrentHashMap 保证线程安全
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
     public BeanIocContainer(String configFile) {
         loadBeanDefinitions(configFile);
     }
 
-    /**
-     * 找到 xml 中所有 bean 相关信息，转换为 beanDefinition，存放到 beanDefinitionMap 中
-     * 需要借助 dom4j
-     *
-     * @param configFile
-     */
     private void loadBeanDefinitions(String configFile) {
         InputStream is = null;
         try {
@@ -89,12 +79,6 @@ public class BeanIocContainer {
 
     }
 
-    /**
-     * 通过 beanID，返回对应 BeanDefinition
-     *
-     * @param beanID
-     * @return
-     */
     public BeanDefinition getBeanDefinition(String beanID) {
         return this.beanDefinitionMap.get(beanID);
     }

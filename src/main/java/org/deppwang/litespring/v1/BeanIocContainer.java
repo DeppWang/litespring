@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * IoC 容器，本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 BeanDefinition
+ * 此时 Spring 本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 BeanDefinition
  */
 public class BeanIocContainer {
 

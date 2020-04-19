@@ -9,6 +9,7 @@
         <!--<constructor-arg  ref="accountDao"/> 使用构造器注入-->
     </bean>
 
-    <bean id="accountDao" class="org.deppwang.litespring.v2.dao.AccountDao">
+    <bean id="accountDao"
+          class="org.deppwang.litespring.v2.dao.AccountDao">
     </bean>
 </beans>

@@ -29,26 +29,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * IoC 容器，本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 BeanDefinition
- */
+
 public class ClassPathXmlApplicationContext implements BeanFactory {
 
-    // 使用 Map 存放所有 BeanDefinition，ConcurrentHashMap 保证线程安全
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
-    // 使用 ConcurrentHashMap 存放所有单例 Bean
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(64);
 
     // 存放注解
     private final Set<Class<? extends Annotation>> autowiredAnnotationTypes =
             new LinkedHashSet<>();
 
-    /**
-     * 找到 xml 中所有 bean 相关信息，转换为 beanDefinition，存放到 beanDefinitionMap 中
-     *
-     * @param configFile
-     */
     public ClassPathXmlApplicationContext(String configFile) {
         this.autowiredAnnotationTypes.add(Autowired.class);
         loadBeanDefinitions(configFile);
@@ -92,7 +83,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      */
     private void parseComponentElement(Element ele) throws IOException {
 
-        // 获取 component-scan 的属性名
+        // 获取 component-scan 的路径
         String basePackagesStr = ele.attributeValue("base-package");
         String[] basePackages = basePackagesStr.split(",");
         for (String basePackage : basePackages) {
@@ -143,7 +134,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      */
     public AnnotationMetadata getAnnotationMetadata(File file) throws IOException {
 
-        // file 是路径，is 相当于字节码文件？
+        // file 是路径，is 相当于字节码文件流
         InputStream is = new BufferedInputStream(new FileInputStream(file));
         // 此时使用了 Spring 框架的 ClassReader，待优化为使用原生类
         ClassReader classReader;
@@ -231,10 +222,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         return this.singletonObjects.get(beanName);
     }
 
-    /**
-     * @param bd
-     * @return
-     */
+
     private Object createBean(BeanDefinition bd) {
         // 创建实例
         Object bean = instantiateBean(bd);
@@ -244,12 +232,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         return bean;
     }
 
-    /**
-     * 创建实例
-     *
-     * @param bd
-     * @return
-     */
+
     private Object instantiateBean(BeanDefinition bd) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String beanClassName = bd.getBeanClassName();

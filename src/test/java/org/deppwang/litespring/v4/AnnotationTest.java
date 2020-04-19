@@ -5,7 +5,6 @@ import org.deppwang.litespring.v4.context.ClassPathXmlApplicationContext;
 import org.deppwang.litespring.v4.dao.AccountDao;
 import org.deppwang.litespring.v4.service.PetStoreService;
 import org.junit.Test;
-//import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -13,9 +12,6 @@ import static org.junit.Assert.assertTrue;
 public class AnnotationTest {
     @Test
     public void test() {
-        // 使用 Spring 框架的 ClassPathXmlApplicationContext
-//        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("petstore-v4.xml");
-//        PetStoreService petStore = (PetStoreService) ctx.getBean(PetStoreService.class);
 
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("petstore-v4.xml");
         PetStoreService petStore = (PetStoreService) ctx.getBean("petStore");

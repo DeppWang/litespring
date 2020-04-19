@@ -7,7 +7,7 @@ public class BeanDefinition {
     // id 是 beanName（类名）
     private String id;
 
-    // 全限定名。利用反射，可通过全限定名生成 Bean 实例
+    // 全限定名
     private String beanClassName;
 
     public BeanDefinition(String id, String beanClassName) {

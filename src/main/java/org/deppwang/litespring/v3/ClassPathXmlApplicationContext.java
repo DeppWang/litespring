@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * IoC 容器，本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 Bean
+ * IoC 容器，此时本质上是一个 ConcurrentHashMap，key 为 beanId，value 为 Bean
+ * 跟 XmlBeanFactory 的区别在于提前将所用 Bean 注入容器
  */
 public class ClassPathXmlApplicationContext implements BeanFactory {
 
@@ -26,11 +27,6 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     // 使用 ConcurrentHashMap 存放所有单例 Bean，String 为 beanId（beanName）
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(64);
 
-    /**
-     * 跟 XmlBeanFactory 的区别在于提前将所用 Bean 注入容器
-     *
-     * @param configFile
-     */
     public ClassPathXmlApplicationContext(String configFile) {
         loadBeanDefinitions(configFile);
         prepareBeanRegister();
