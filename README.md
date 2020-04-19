@@ -228,7 +228,6 @@ com.amy.cloud.amycloudact.ProviderAppConfiguration
 - @ComponentScan 指定组件扫描路径，不指定即为当前路径
 - @Configuration 代表配置类，作为入口
 - @EnableAutoConfiguration 实现加载配置类
-- 注解是 Class 文件的元数据，本身只是一个标识，主要还是使用反射、字节码等技术。
 
 有的童鞋可能还会有这样的疑问：
 
