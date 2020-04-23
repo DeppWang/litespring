@@ -11,6 +11,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
                 String id = ele.attributeValue("id");
                 String beanClassName = ele.attributeValue("class");
                 BeanDefinition bd = new BeanDefinition(id, beanClassName);
+                parseConstructorArgElement(ele, bd);
                 parsePropertyElement(ele, bd);
                 this.beanDefinitionMap.put(id, bd);
             }
@@ -64,6 +66,19 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void parseConstructorArgElement(Element beanElem, BeanDefinition bd) {
+        Iterator iter = beanElem.elementIterator("constructor-arg");
+        while (iter.hasNext()) {
+            Element propElem = (Element) iter.next();
+            String argumentName = propElem.attributeValue("ref");
+            if (!StringUtils.hasLength(argumentName)) {
+                return;
+            }
+
+            bd.getConstructorArgumentValues().add(argumentName);
         }
 
     }
@@ -155,15 +170,59 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     private Object instantiateBean(BeanDefinition bd) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String beanClassName = bd.getBeanClassName();
+        if (bd.hasConstructorArgumentValues()) {
+            return autowireConstructor(bd);
+        } else {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            String beanClassName = bd.getBeanClassName();
+            try {
+                Class<?> clz = cl.loadClass(beanClassName);
+                return clz.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    private Object autowireConstructor(final BeanDefinition bd) {
+        Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
+        Object[] argsToUse = null; // 代表将依赖注入的对象
+        Class<?> beanClass = null;
         try {
-            Class<?> clz = cl.loadClass(beanClassName);
-            return clz.newInstance();
-        } catch (Exception e) {
+            beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+
+        // 通过反射获取所有的构造方法
+        Constructor<?>[] candidates = beanClass.getConstructors();
+        for (int i = 0; i < candidates.length; i++) {
+
+            Class<?>[] parameterTypes = candidates[i].getParameterTypes();
+            if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
+                continue;
+            }
+            argsToUse = new Object[parameterTypes.length];
+            valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
+            constructorToUse = candidates[i];
+            break;
+        }
+        try {
+            return constructorToUse.newInstance(argsToUse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void valuesMatchTypes(
+            List<String> beanNames,
+            Object[] argsToUse) {
+        for (int i = 0; i < beanNames.size(); i++) {
+            Object argumentBean = getBean(beanNames.get(i));
+            argsToUse[i] = argumentBean;
+        }
     }
 
     private void populateBean(BeanDefinition bd, Object bean) {

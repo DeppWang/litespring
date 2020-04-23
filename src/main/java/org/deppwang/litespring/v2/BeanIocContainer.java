@@ -43,8 +43,8 @@ public class BeanIocContainer {
                 String id = ele.attributeValue("id");
                 String beanClassName = ele.attributeValue("class");
                 BeanDefinition bd = new BeanDefinition(id, beanClassName);
-                parsePropertyElement(ele, bd);
                 parseConstructorArgElement(ele, bd);
+                parsePropertyElement(ele, bd);
                 this.beanDefinitionMap.put(id, bd);
             }
         } catch (DocumentException e) {
@@ -57,26 +57,6 @@ public class BeanIocContainer {
                     e.printStackTrace();
                 }
             }
-        }
-
-    }
-
-    /**
-     * 设置 bean 的所有属性名
-     *
-     * @param beanElem
-     * @param bd
-     */
-    public void parsePropertyElement(Element beanElem, BeanDefinition bd) {
-        Iterator iter = beanElem.elementIterator("property");
-        while (iter.hasNext()) {
-            Element propElem = (Element) iter.next();
-            String propertyName = propElem.attributeValue("name");
-            if (!StringUtils.hasLength(propertyName)) {
-                return;
-            }
-
-            bd.getPropertyNames().add(propertyName);
         }
 
     }
@@ -97,6 +77,26 @@ public class BeanIocContainer {
             }
 
             bd.getConstructorArgumentValues().add(argumentName);
+        }
+
+    }
+
+    /**
+     * 设置 bean 的所有属性名
+     *
+     * @param beanElem
+     * @param bd
+     */
+    public void parsePropertyElement(Element beanElem, BeanDefinition bd) {
+        Iterator iter = beanElem.elementIterator("property");
+        while (iter.hasNext()) {
+            Element propElem = (Element) iter.next();
+            String propertyName = propElem.attributeValue("name");
+            if (!StringUtils.hasLength(propertyName)) {
+                return;
+            }
+
+            bd.getPropertyNames().add(propertyName);
         }
 
     }
@@ -192,6 +192,12 @@ public class BeanIocContainer {
         }
     }
 
+    /**
+     * 设置构造函数参数实例
+     *
+     * @param beanNames
+     * @param argsToUse
+     */
     private void valuesMatchTypes(
             List<String> beanNames,
             Object[] argsToUse) {

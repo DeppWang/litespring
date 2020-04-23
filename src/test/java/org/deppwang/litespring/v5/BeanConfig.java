@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class BeanConfig {
-    @Bean // 将 返回值注入容器。
+    @Bean
     PetStoreService setPet() {
         return new PetStoreService();
     }

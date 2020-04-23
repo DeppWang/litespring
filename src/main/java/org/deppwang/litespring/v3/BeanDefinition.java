@@ -1,6 +1,7 @@
 package org.deppwang.litespring.v3;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,6 +16,8 @@ public class BeanDefinition {
 //    private boolean singleton = true;
 
     private final List<String> propertyNames = new ArrayList<>();
+
+    private final List<String> constructorArguments = new LinkedList<>();
 
     public BeanDefinition(String id, String beanClassName) {
         this.id = id;
@@ -32,6 +35,14 @@ public class BeanDefinition {
 
     public List<String> getPropertyNames() {
         return this.propertyNames;
+    }
+
+    public List<String> getConstructorArgumentValues() {
+        return this.constructorArguments;
+    }
+
+    boolean hasConstructorArgumentValues() {
+        return !this.constructorArguments.isEmpty();
     }
 
 
