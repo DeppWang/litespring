@@ -4,10 +4,14 @@ import org.deppwang.litespring.v2.dao.AccountDao;
 
 public class PetStoreService {
 
+    private AccountDao accountDao;
 
-    // 1、使用 Setter 方法
-    AccountDao accountDao;
+    // 1、使用构造函数
+    public PetStoreService(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
 
+    // 2、使用 Setter 方法
     public void setAccountDao(AccountDao accountDao) {
         this.accountDao = accountDao;
     }
@@ -15,13 +19,4 @@ public class PetStoreService {
     public AccountDao getAccountDao() {
         return accountDao;
     }
-
-
-    // 2、使用构造函数
-//    AccountDao accountDao;
-//
-//    public PetStoreService(AccountDao accountDao) {
-//        this.accountDao = accountDao;
-//    }
-
 }

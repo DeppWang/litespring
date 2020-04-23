@@ -1,6 +1,7 @@
 package org.deppwang.litespring.v2;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -12,7 +13,9 @@ public class BeanDefinition {
     private String beanClassName;
 
     // 存放 Bean 的所有属性名称，用于获取 Bean
-    List<String> propertyNames = new ArrayList<>();
+    private final List<String> propertyNames = new ArrayList<>();
+
+    private final List<String> constructorArguments = new LinkedList<>();
 
     public BeanDefinition(String id, String beanClassName) {
         this.id = id;
@@ -25,5 +28,13 @@ public class BeanDefinition {
 
     public List<String> getPropertyNames() {
         return this.propertyNames;
+    }
+
+    public List<String> getConstructorArgumentValues() {
+        return this.constructorArguments;
+    }
+
+    boolean hasConstructorArgumentValues() {
+        return !this.constructorArguments.isEmpty();
     }
 }

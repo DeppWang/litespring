@@ -14,7 +14,7 @@ public class BeanDefinition {
     // 除了使用单例创建，还可以使用原型创建，默认使用单例创建
 //    private boolean singleton = true;
 
-    List<String> propertyNames = new ArrayList<>();
+    private final List<String> propertyNames = new ArrayList<>();
 
     public BeanDefinition(String id, String beanClassName) {
         this.id = id;

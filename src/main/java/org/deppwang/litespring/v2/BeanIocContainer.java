@@ -11,6 +11,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class BeanIocContainer {
                 String beanClassName = ele.attributeValue("class");
                 BeanDefinition bd = new BeanDefinition(id, beanClassName);
                 parsePropertyElement(ele, bd);
+                parseConstructorArgElement(ele, bd);
                 this.beanDefinitionMap.put(id, bd);
             }
         } catch (DocumentException e) {
@@ -78,6 +80,27 @@ public class BeanIocContainer {
         }
 
     }
+
+    /**
+     * 获取构造函数的参数名
+     *
+     * @param beanElem
+     * @param bd
+     */
+    private void parseConstructorArgElement(Element beanElem, BeanDefinition bd) {
+        Iterator iter = beanElem.elementIterator("constructor-arg");
+        while (iter.hasNext()) {
+            Element propElem = (Element) iter.next();
+            String argumentName = propElem.attributeValue("ref");
+            if (!StringUtils.hasLength(argumentName)) {
+                return;
+            }
+
+            bd.getConstructorArgumentValues().add(argumentName);
+        }
+
+    }
+
 
     public BeanDefinition getBeanDefinition(String beanID) {
         return this.beanDefinitionMap.get(beanID);
@@ -116,18 +139,67 @@ public class BeanIocContainer {
      * @return
      */
     private Object instantiateBean(BeanDefinition bd) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        String beanClassName = bd.getBeanClassName();
-        try {
-            // 通过类加载器，根据 className（全限定名），得到其类对象，通过类对象利用反射创建 Bean 实例
-            Class<?> clz = cl.loadClass(beanClassName);
-            return clz.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (bd.hasConstructorArgumentValues()) {
+            return autowireConstructor(bd);
+        } else {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            String beanClassName = bd.getBeanClassName();
+            try {
+                // 通过类加载器，根据 className（全限定名），得到其类对象，通过类对象利用反射创建 Bean 实例
+                Class<?> clz = cl.loadClass(beanClassName);
+                return clz.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
         }
-        return null;
     }
 
+    /**
+     * 通过构造方法实现依赖注入
+     *
+     * @param bd
+     * @return
+     */
+    private Object autowireConstructor(final BeanDefinition bd) {
+        Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
+        Object[] argsToUse = null; // 代表将依赖注入的对象
+        Class<?> beanClass = null;
+        try {
+            beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // 通过反射获取所有的构造方法
+        Constructor<?>[] candidates = beanClass.getConstructors();
+        for (int i = 0; i < candidates.length; i++) {
+
+            Class<?>[] parameterTypes = candidates[i].getParameterTypes();
+            if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
+                continue;
+            }
+            argsToUse = new Object[parameterTypes.length];
+            valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
+            constructorToUse = candidates[i];
+            break;
+        }
+        try {
+            return constructorToUse.newInstance(argsToUse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void valuesMatchTypes(
+            List<String> beanNames,
+            Object[] argsToUse) {
+        for (int i = 0; i < beanNames.size(); i++) {
+            Object argumentBean = getBean(beanNames.get(i));
+            argsToUse[i] = argumentBean;
+        }
+    }
 
     /**
      * 填充属性（依赖注入）
