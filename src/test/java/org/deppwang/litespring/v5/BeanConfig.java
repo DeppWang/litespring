@@ -13,15 +13,15 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class BeanConfig {
-    @Bean
-    PetStoreService setPet() {
-        return new PetStoreService();
-    }
-
-    @Bean
-    AccountDao setAccount() {
-        return new AccountDao();
-    }
+//    @Bean
+//    PetStoreService setPet() {
+//        return new PetStoreService();
+//    }
+//
+//    @Bean
+//    AccountDao setAccount() {
+//        return new AccountDao();
+//    }
 
     @Bean
     public ExecutorService sendMessageExecutor() {

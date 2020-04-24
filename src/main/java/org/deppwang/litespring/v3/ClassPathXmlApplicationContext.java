@@ -103,13 +103,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      */
     private void prepareBeanRegister() {
         for (String beanId : beanDefinitionMap.keySet()) {
-            BeanDefinition bd = this.getBeanDefinition(beanId);
-            // 单例模式，一个类对应一个 Bean，不是通过 id。常规单例模式是多次调用方法，只生成一个实例。此处是只会调用依次生成实例方法。
-            Object bean = this.getSingleton(beanId);
-            if (bean == null) {
-                bean = createBean(bd);
-                this.registerSingleton(beanId, bean);
-            }
+            this.getBean(beanId);
         }
     }
 

@@ -6,7 +6,7 @@
 
 Spring 框架是 Java 开发的，Java 是面向对象的语言，所以 Spring 框架本身有大量的抽象、继承、多态。对于初学者来说，光是理清他们的逻辑就很麻烦，我摒弃了那些包装，只实现了最本质的功能。代码不是很严谨，但只为了理解 Spring 思想却够了。
 
-下面正文开始
+下面正文开始。
 
 ## 零、前言
 
@@ -154,15 +154,29 @@ Spring 其实使用一个 Map 存放所有 Bean 实例。创建时，先看 Map 
 private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(64);
 ```
 
-管理 Bean 实例的 singletonObjects，也是一个 IoC 容器。
+因为存放 Bean 实例也是 Map，这是除 beanDefinitionMap 外，Spring 称为 IoC 容器的另一个原因。
 
-早期 Spring 使用 Bean 的策略是用到时再实例化所用 Bean，杰出代表是 XmlBeanFactory（XmlBeanFactory 已经被废弃了，此处只是举例），后期为了实现更多的功能，新增了 ApplicationContext，两者都继承于 BeanFactory 接口。这使用了工厂方法模式。
+我们将创建对象的控制权交给 Spring（BeanIocContainer.java），我们可以认为 BeanIocContainer.java 是一个创建对象的工厂（专门生产对象），也可以称为简单工厂。它实现了创建对象和使用对象分离。
 
-> 工厂方法模式：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method 使一个类的实例化延迟到其子类。
+Spring 为了使用不同的方式均可实现实例化 Bean，不能只是简单工厂，需要使用工厂方法模式。
 
-我们将 BeanIocContainer 修改为 BeanFactory 接口，只提供 getBean() 方法。创建（IoC）容器由其子类自己实现。
+> 工厂方法模式：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method 使一个类的实例化延迟到其子类。来源：Head First 设计模式
 
-ApplicationContext 和 BeanFactory 的区别：ApplicationContext 初始化时就实例化所有 Bean，BeanFactory 用到时再实例化所用 Bean。
+简单的理解就是：将创建对象的方法抽象，作为一个工厂方法。
+
+这里的「让子类决定实例化哪一个类」，也可以看成让子类决定如何实现实例化类。
+
+我们可以把工厂方法模式理解为简单工厂的升级版，可通过子类实现多种方式创建对象，是一种创建对象的「多态」。
+
+早期 Spring 使用 Bean 的策略是用到时再实例化所用 Bean，杰出代表是 XmlBeanFactory。后期为了实现更多的功能，新增了 ApplicationContext，初始化时就实例化所有 Bean，两者都继承于 BeanFactory 接口。
+
+<!--两者的区别：ApplicationContext 初始化时就实例化所有 Bean，BeanFactory 用到时再实例化所用 Bean。-->
+
+<!--这里创建对象的工厂方法是**构造方法**。-->
+
+实现：将 BeanIocContainer 修改为 BeanFactory 接口，只提供 getBean() 方法。实现不同的子类对应不同什么的方式实例化 Bean。
+
+Spring 使用 **getBean() **作为工厂方法。getBean() 包含创建对象的方法。
 
 本节源码对应：**v3**
 
@@ -264,10 +278,9 @@ public class BeanConfig {
     }
 }
 
-@SpringBootApplication
-public class NowsApplication {
+public class BeanTest {
     @Autowired
-    private ExecutorService executorService;
+    ExecutorService service;
 }
 ```
 
@@ -276,6 +289,8 @@ public class NowsApplication {
 <!--如果 Bean 没有构造函数或者 Setter 方法，需要引用 @Autowired-->
 
 注意：@Bean 需要和 @Configuration 一起使用
+
+本节源码对应：**v5**
 
 <!--如果一个标记为 @Bean 的函数需要使用另一个类，那么另一个类也要注入容器？除非它本身也作为 Bean-->
 
