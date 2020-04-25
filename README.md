@@ -8,9 +8,11 @@ Spring 框架是 Java 开发的，Java 是面向对象的语言，所以 Spring 
 
 下面正文开始。
 
-## 零、前言
+<!--more-->
 
-在没有 Spring 框架的远古时代，我们业务逻辑长这样：
+## 零、Spring 的作用
+
+在没有 Spring 框架的远古时代，我们业务逻辑一般长这样：
 
 ```Java
 public class PetStoreService {
@@ -23,11 +25,11 @@ public class AccountDao {
 PetStoreService petStoreService = new PetStoreService();
 ```
 
-到处都是  **new** 关键字，需要开发人员显式的使用 new 关键字来创建对象（实例）。这样有很多弊端，如，创建的对象太多（多次创建多个对象），耦合性太强（必须默认 new），等等。
+到处都是  **new** 关键字，需要开发人员显式的使用 new 关键字来创建对象（实例）。这样有很多弊端，如，创建的对象太多（多次创建多个对象），耦合性太强（默认 new），等等。
 
 有个叫 [Rod Johnson](https://en.wikipedia.org/wiki/Rod_Johnson_(programmer)) 老哥对此很不爽，就开发了一个叫 [Spring](https://spring.io/) 的框架，就是为了干掉 new 关键字（哈哈，我杜撰的，只是为了说明 Spring 的作用）。
 
-有了 Spring 框架，**由框架来新建对象，管理对象，并处理对象之间的依赖**，我们程序员再也不用 new 对象了。我们来看看 Spring 框架是如何实现的吧。
+有了 Spring 框架，**由框架来新建对象，管理对象，并处理对象之间的依赖**，我们程序员就可以专注于业务逻辑（专心搬砖），不用关心对象的创建了。我们来看看 Spring 框架是如何实现的吧。
 
 注：以下 Spring 框架简写为 Spring
 
@@ -35,7 +37,7 @@ PetStoreService petStoreService = new PetStoreService();
 
 ## 一、实现「实例化 Bean 」
 
-首先，我们需要标记哪些类交给 Spring 管理，在 xml 配置文件将其标记为 `<bean>`：
+首先，我们需要标记哪些类交给 Spring 管理，可以借助 xml 标记，将其标记为 `<bean>`：
 
 ```xml
 <!--petstore-v1.xml-->
@@ -43,7 +45,7 @@ PetStoreService petStoreService = new PetStoreService();
     <bean id="accountDao" class="org.deppwang.litespring.v1.dao.AccountDao"></bean>
 ```
 
-Spring 的第一步操作就是根据 xml 的配置来实例化类，在 Spring 中，我们管类叫 Bean，所以实例化类也可以称为实例化 Bean。
+Spring 的第一步操作就是根据 xml 的标记来实例化类，在 Spring 中，我们管类叫 Bean，所以实例化类也可以称为实例化 Bean。
 
 Spring 如何根据 xml 配置来实现实例化类？
 
@@ -77,11 +79,19 @@ Spring 如何根据 xml 配置来实现实例化类？
 
 ## 二、实现「填充属性（依赖注入）」
 
-不默认 new 时，实现实例化 Bean 后，此时成员变量（属性）还为 null：
+<!--使用 Spring 时，我们∞希望只需要声明一下就能使用-->
+
+```Java
+public class PetStoreService {
+    AccountDao accountDao;
+}
+```
+
+当不默认 new 时，实现实例化 Bean 后，此时成员变量（属性）还为 null：
 
 ![](https://deppwang.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-143303.png)
 
-此时需要通过一种方式实现，让引用指向实例，我们管这一步叫填充属性。
+此时需要通过一种方式实现让属性不为 null，我们管这一步叫填充属性。
 
 当一个 Bean 的成员变量类型是另一个 Bean 时，我们可以说一个 Bean 依赖于另一个 Bean。所以填充属性，也可以称为依赖注入（**D**ependency **I**njection，简称 DI）。
 
@@ -160,7 +170,7 @@ private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(64)
 
 Spring 为了使用不同的方式均可实现实例化 Bean，不能只是简单工厂，需要使用工厂方法模式。
 
-> 工厂方法模式：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method 使一个类的实例化延迟到其子类。来源：Head First 设计模式
+> 工厂方法模式：定义一个用于创建对象的接口，让子类决定实例化哪一个类。Factory Method 使一个类的实例化延迟到其子类。来源：《Head First 设计模式》
 
 简单的理解就是：将创建对象的方法抽象，作为一个工厂方法。
 
@@ -184,7 +194,7 @@ Spring 使用 **getBean() **作为工厂方法。getBean() 包含创建对象的
 
 前面说：在 Spring 中，我们管类叫 Bean。其实不完全正确，类要称为 Bean，需要满足一个条件：
 
-- 当有成员变量时，必须有对应的构造函数或者 Setter 方法
+- 当有成员变量时，必须有对应的构造函数或者 Setter() 方法
 
 即可以被 Spring 管理的类，称为 Bean。
 
