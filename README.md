@@ -130,7 +130,7 @@ Spring 如何根据 `<constructor-arg>` 来实现依赖注入？
    bd.getConstructorArgumentValues().add(argumentName);
    ```
 
-2. 通过反射得到 PetStoreService 所有的构造函数，找到参数跟 constructorArguments 一致的构造函数
+2. 通过反射得到 PetStoreService 所有自定义的构造函数，找到参数跟 constructorArguments 一致的构造函数
 
    ```Java
    Constructor<?>[] candidates = beanClass.getConstructors();
@@ -232,6 +232,7 @@ Spring 如何根据注解来实现实例化 Bean 和依赖注入？或者说，�
 - 通过反射，查看 Field 中是否有 @Autowired 类型的注解，有，则使用反射实现依赖注入
 
   ```Java
+  Field[] fields = bean.getClass().getDeclaredFields();
   field.set(bean, getBean(field.getName()));
   ```
 

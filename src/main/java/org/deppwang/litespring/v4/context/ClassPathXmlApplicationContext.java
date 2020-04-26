@@ -253,7 +253,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      * @param bean
      */
     private void populateBean(Object bean) {
-        // 获取所有的属性，包括私有属性
+        // 利用反射，获取所有的属性，包括私有属性
         Field[] fields = bean.getClass().getDeclaredFields();
         try {
             for (Field field : fields) {
