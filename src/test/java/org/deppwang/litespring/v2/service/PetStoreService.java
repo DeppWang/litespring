@@ -6,7 +6,7 @@ public class PetStoreService {
 
     private AccountDao accountDao;
 
-    // 1、使用构造函数
+    // 1、使用构造方法
     public PetStoreService(AccountDao accountDao) {
         this.accountDao = accountDao;
     }

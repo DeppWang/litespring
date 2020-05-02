@@ -178,11 +178,11 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     private Object autowireConstructor(final BeanDefinition bd) {
-        Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
+        Constructor<?> constructorToUse = null; // 代表最终匹配的 Constructor 对象
         Object[] argsToUse = null; // 代表将依赖注入的对象
         try {
             Class<?> beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
-            // 通过反射获取当前类的构造方法
+            // 通过反射获取当前类的构造方法信息（Constructor 对象）
             Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
             for (int i = 0; i < candidates.length; i++) {
 

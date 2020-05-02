@@ -252,7 +252,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
      * @param bean
      */
     private void populateBean(Object bean) {
-        // 通过反射得到当前类所有的字段（Field 对象）。getFields() 获取公有字段
+        // 通过反射得到当前类所有的字段信息（Field 对象）。getFields() 获取公有字段
         Field[] fields = bean.getClass().getDeclaredFields();
         try {
             for (Field field : fields) {

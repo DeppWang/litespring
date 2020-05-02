@@ -63,7 +63,7 @@ public class BeanIocContainer {
     }
 
     /**
-     * 获取构造函数的参数名
+     * 获取构造方法的参数名
      *
      * @param beanElem
      * @param bd
@@ -164,11 +164,11 @@ public class BeanIocContainer {
      * @return
      */
     private Object autowireConstructor(final BeanDefinition bd) {
-        Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
+        Constructor<?> constructorToUse = null; // 代表最终匹配的 Constructor 对象
         Object[] argsToUse = null; // 代表将依赖注入的对象
         try {
             Class<?> beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
-            // 通过反射获取当前类的所有构造方法对象（包括私有和公有）
+            // 通过反射获取当前类的所有 Constructor 对象（包括私有和公有）
             Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
             for (int i = 0; i < candidates.length; i++) {
 
@@ -176,13 +176,13 @@ public class BeanIocContainer {
                 if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
                     continue;
                 }
-                // 设置构造函数参数实例
+                // 设置构造方法参数实例
                 argsToUse = new Object[parameterTypes.length];
                 valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
                 constructorToUse = candidates[i];
                 break;
             }
-            // 使用带有参数的构造函数对象实现实例化 Bean
+            // 使用带有参数的构造方法对象实现实例化 Bean
             return constructorToUse.newInstance(argsToUse);
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,7 +191,7 @@ public class BeanIocContainer {
     }
 
     /**
-     * 设置构造函数参数实例
+     * 设置构造方法参数实例
      *
      * @param beanNames
      * @param argsToUse
@@ -227,7 +227,7 @@ public class BeanIocContainer {
 //                    }
 //                }
 //            }
-            // 通过反射获取当前类所有的方法对象（包括私有和公有）
+            // 通过反射获取当前类所有的方法信息（Method 对象）
             Method[] methods = bean.getClass().getDeclaredMethods();
             for (String propertyName : propertyNames) {
                 for (Method method : methods) {
