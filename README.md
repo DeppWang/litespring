@@ -1,3 +1,5 @@
+# 造轮子：实现一个简易的 Spring IoC 容器
+
 ![source:https://fernandofranzini.wordpress.com/](https://deppwang.oss-cn-beijing.aliyuncs.com/blog/2020-04-19-110638.jpg)
 
 我通过实现一个简易的 Spring IoC 容器，算是真正入门了 Spring 框架。本文是对实现过程的一个总结提炼，**需要配合源码阅读**，[源码地址](https://github.com/DeppWang/litespring)。
@@ -7,8 +9,6 @@
 Spring 框架是 Java 开发的，Java 是面向对象的语言，所以 Spring 框架本身有大量的抽象、继承、多态。对于初学者来说，光是理清他们的逻辑就很麻烦，我摒弃了那些包装，只实现了最本质的功能。代码不是很严谨，但只为了理解 Spring 思想却够了。
 
 下面正文开始。
-
-<!--more-->
 
 ## 零、Spring 的作用
 
@@ -69,7 +69,7 @@ Spring 如何根据 xml 配置来实现实例化类？
    return Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName()).newInstance();
    ```
 
-关于类加载和反射，前者可以看看[《深入理解 Java 虚拟机》](https://book.douban.com/subject/34907497/)第 7 章，后者可以看看《廖雪峰 Java 教程》[反射](https://www.liaoxuefeng.com/wiki/1252599548343744/1255945147512512) 部分。本文只学习 Spring，这两个知识点不做深入讨论。
+关于类加载和反射，前者可以看看[《深入理解 Java 虚拟机》](https://book.douban.com/subject/34907497/)第 7 章，后者可以看看 [Spring 中的反射与反射的原理](https://depp.wang/2020/04/29/reflection-in-spring-and-reflection-principle/)。本文只学习 Spring，这两个知识点不做深入讨论。
 
 名词解释：
 
@@ -79,7 +79,9 @@ Spring 如何根据 xml 配置来实现实例化类？
 
 ## 二、实现「填充属性（依赖注入）」
 
-<!--使用 Spring 时，我们∞希望只需要声明一下就能使用-->
+<!--使用 Spring 时，我们希望只需要声明一下就能使用-->
+
+<!--直接 new 改为依赖注入-->
 
 ```Java
 public class PetStoreService {
@@ -130,13 +132,13 @@ Spring 如何根据 `<constructor-arg>` 来实现依赖注入？
    bd.getConstructorArgumentValues().add(argumentName);
    ```
 
-2. 通过反射得到 PetStoreService 所有自定义的构造函数，找到参数跟 constructorArguments 一致的构造函数
+2. 通过反射得到 PetStoreService 所有的构造函数（Constructor 对象），找到参数跟 constructorArguments 一致的 Constructor 对象
 
    ```Java
-   Constructor<?>[] candidates = beanClass.getConstructors();
+   Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
    ```
 
-3. 通过 constructorArguments 获取到所有参数实例，再利用反射，通过构造函数实现填充属性。
+3. 通过 constructorArguments 获取到所有参数实例，再利用反射，通过 Constructor 对象实现填充属性。
 
    ```Java
    return constructorToUse.newInstance(argsToUse);
@@ -176,7 +178,7 @@ Spring 为了使用不同的方式均可实现实例化 Bean，不能只是简�
 
 这里的「让子类决定实例化哪一个类」，也可以看成让子类决定如何实现实例化类。
 
-我们可以把工厂方法模式理解为简单工厂的升级版，可通过子类实现多种方式创建对象，是一种创建对象的「多态」。
+我们可以把工厂方法模式理解为简单工厂的升级版，可通过子类实现多种方式创建对象，是一种简单工厂的「多态」。
 
 早期 Spring 使用 Bean 的策略是用到时再实例化所用 Bean，杰出代表是 XmlBeanFactory。后期为了实现更多的功能，新增了 ApplicationContext，初始化时就实例化所有 Bean，两者都继承于 BeanFactory 接口。
 
@@ -191,12 +193,6 @@ Spring 使用 **getBean() **作为工厂方法。getBean() 包含创建对象的
 本节源码对应：**v3**
 
 ## 四、实现「注解」
-
-前面说：在 Spring 中，我们管类叫 Bean。其实不完全正确，类要称为 Bean，需要满足一个条件：
-
-- 当有成员变量时，必须有对应的构造函数或者 Setter() 方法
-
-即可以被 Spring 管理的类，称为 Bean。
 
 在业务开发中，如果每个业务类均设置构造函数，并且需要在 xml 中配置，那么就太繁琐，还容易出错。Spring 从 2.5<sup>[ref](https://www.tutorialspoint.com/spring/spring_annotation_based_configuration.htm)</sup> 开始，新增了注解，可以使用注解来替代业务类的 xml 配置和构造函数。
 
@@ -221,7 +217,7 @@ Spring 如何根据注解来实现实例化 Bean 和依赖注入？或者说，�
   String basePackagesStr = ele.attributeValue("base-package");
   ```
 
-- 如何判断 Class 是否有 @Component：利用字节码技术，获取 Class 文件中的元数据（注解等），判断元数据中是否有 @Componet
+- 如何判断 Class 是否有 @Component：利用字节码技术，获取 Class 文件中的元数据（注解），判断元数据中是否有 @Componet
 
   ```Java
   annotationMetadata.hasAnnotation(Component.class.getName())
@@ -229,7 +225,7 @@ Spring 如何根据注解来实现实例化 Bean 和依赖注入？或者说，�
 
 2、@Autowired 用于依赖注入，实现原理（配合源码 **v4** 阅读）：
 
-- 通过反射，查看 Field 中是否有 @Autowired 类型的注解，有，则使用反射实现依赖注入
+- 通过反射，得到所有的属性（Field 对象），查看 Field 对象中是否有 @Autowired 类型的注解，有，则使用反射实现依赖注入
 
   ```Java
   Field[] fields = bean.getClass().getDeclaredFields();
@@ -259,6 +255,12 @@ public class PetStoreConfig {
 使用注解其实跟使用 xml 配置文件一样，目的是将配置类作为入口，实现扫描组件，将其加载进 IoC 容器中的功能。
 
 AnnotationConfigApplicationContext 是专为针对配置类的启动类。其实现机制，可以 Google 查阅。
+
+前面说：在 Spring 中，我们管类叫 Bean。其实不完全正确，类要称为 Bean，需要满足一个条件：
+
+- 当有成员变量时，要么有 @Autowired 注解，要么有对应的构造函数或者 Setter() 方法
+
+即可以被 Spring 管理的类，称为 Bean。
 
 名词解释：
 
@@ -364,7 +366,7 @@ com.amy.cloud.amycloudact.ProviderAppConfiguration
 
 Spring 的原理离不开两个关键词：反射和注解。
 
-- 反射：利用反射，通过全限定名得到实例；可通过反射得到构造函数；可通过反射实现构造函数依赖注入；可通过反射实现 @Autowired 依赖注入
+- 反射：在创建 Bean 实例和依赖注入是都需要使用反射。
 - 注解：使用注解可大大提升代码可阅读性，降低复杂度。注解本质上是作为一个标识，获取注解时需要使用字节码技术。
 
 现在我们一般很少使用 xml 来设置 bean，但了解了 xml 可以更好的理解 Spring 注解的原理。

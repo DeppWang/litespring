@@ -6,7 +6,7 @@
 
     <bean id="petStore"
           class="org.deppwang.litespring.v3.service.PetStoreService">
-        <property name="accountDao" ref="accountDao"/>
+        <constructor-arg ref="accountDao"/>
     </bean>
 
     <bean id="accountDao"

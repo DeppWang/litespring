@@ -6,12 +6,10 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.util.StringUtils;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -182,27 +180,22 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     private Object autowireConstructor(final BeanDefinition bd) {
         Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
         Object[] argsToUse = null; // 代表将依赖注入的对象
-        Class<?> beanClass = null;
         try {
-            beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+            Class<?> beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
+            // 通过反射获取当前类的构造方法
+            Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
+            for (int i = 0; i < candidates.length; i++) {
 
-        // 通过反射获取所有的构造方法
-        Constructor<?>[] candidates = beanClass.getConstructors();
-        for (int i = 0; i < candidates.length; i++) {
-
-            Class<?>[] parameterTypes = candidates[i].getParameterTypes();
-            if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
-                continue;
+                Class<?>[] parameterTypes = candidates[i].getParameterTypes();
+                if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
+                    continue;
+                }
+                argsToUse = new Object[parameterTypes.length];
+                valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
+                constructorToUse = candidates[i];
+                break;
             }
-            argsToUse = new Object[parameterTypes.length];
-            valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
-            constructorToUse = candidates[i];
-            break;
-        }
-        try {
+
             return constructorToUse.newInstance(argsToUse);
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,15 +213,14 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     private void populateBean(BeanDefinition bd, Object bean) {
-        List<String> pns = bd.getPropertyNames();
+        List<String> propertyNames = bd.getPropertyNames();
         try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-            PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
-            for (String pn : pns) {
-                Object propertyBean = getBean(pn);
-                for (PropertyDescriptor pd : pds) {
-                    if (pd.getName().equals(pn)) {
-                        pd.getWriteMethod().invoke(bean, propertyBean);
+            Method[] methods = bean.getClass().getDeclaredMethods();
+            for (String propertyName : propertyNames) {
+                for (Method method : methods) {
+                    if (method.getName().equals("set" + upperCaseFirstChar(propertyName))) {
+                        Object propertyBean = getBean(propertyName);
+                        method.invoke(bean, propertyBean);
                         break;
                     }
                 }
@@ -236,5 +228,11 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String upperCaseFirstChar(String str) {
+        char chars[] = str.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return new String(chars);
     }
 }

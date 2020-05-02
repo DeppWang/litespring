@@ -41,7 +41,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
             new LinkedHashSet<>();
 
     public ClassPathXmlApplicationContext(String configFile) {
-        this.autowiredAnnotationTypes.add(Autowired.class);
+//        this.autowiredAnnotationTypes.add(Autowired.class);
         loadBeanDefinitions(configFile);
         prepareBeanRegister();
     }
@@ -237,7 +237,6 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String beanClassName = bd.getBeanClassName();
         try {
-            // 根据 className，利用反射创建 Bean 实例
             Class<?> clz = cl.loadClass(beanClassName);
             return clz.newInstance();
         } catch (Exception e) {
@@ -247,24 +246,26 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 利用反射，将属性与对象关联
-     * 没有 setter 方法，利用 Field 的field.set()；有 setter 方法，利用 PropertyDescriptor 的 Method.invoke()
+     * 利用反射，将字段与对象关联
+     * 没有 setter 方法，利用 Field 的field.set()；有 setter 方法，利用 Method 的 Method.invoke()
      *
      * @param bean
      */
     private void populateBean(Object bean) {
-        // 利用反射，获取所有的属性，包括私有属性
+        // 通过反射得到当前类所有的字段（Field 对象）。getFields() 获取公有字段
         Field[] fields = bean.getClass().getDeclaredFields();
         try {
             for (Field field : fields) {
-                Annotation ann = findAutowiredAnnotation(field);
+//                Annotation ann = findAutowiredAnnotation(field);
+                // 判断字段是否有 @Autowired 注解
+                Annotation ann = field.getAnnotation(Autowired.class);
                 // 根据是否有 Autowired 注解来决定是否注入
                 if (ann != null) {
                     Object value = getBean(field.getName());
                     if (value != null) {
-                        // 设置私有属性可连接
-                        makeAccessible(field);
-                        // 利用反射，将属性的实例和属性相关联
+                        // 设置字段可连接，相当于将非 public（private、default、package） 更改为 public
+                        field.setAccessible(true);
+                        // 通过反射设置字段的值
                         field.set(bean, value);
                     }
                 }
@@ -275,7 +276,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 查看 field 是否有注解。
+     * 查看 field 是否有注解
      *
      * @param ao
      * @return
@@ -292,7 +293,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 通过反射，查看 field 是否有 annotationType 类型的注解
+     * 查看 field 是否有 annotationType 类型的注解
      *
      * @param ae
      * @param annotationType
@@ -313,7 +314,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
     }
 
     /**
-     * 设置私有属性可连接
+     * 设置字段可连接
      *
      * @param field
      */

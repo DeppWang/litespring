@@ -12,6 +12,7 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -145,8 +146,9 @@ public class BeanIocContainer {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             String beanClassName = bd.getBeanClassName();
             try {
-                // 通过类加载器，根据 className（全限定名），得到其类对象，通过类对象利用反射创建 Bean 实例
+                // 通过类加载器，根据 className（全限定名），得到其类对象
                 Class<?> clz = cl.loadClass(beanClassName);
+                // 通过类对象利用反射创建 Bean 实例
                 return clz.newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -164,27 +166,23 @@ public class BeanIocContainer {
     private Object autowireConstructor(final BeanDefinition bd) {
         Constructor<?> constructorToUse = null; // 代表最终匹配的构造方法
         Object[] argsToUse = null; // 代表将依赖注入的对象
-        Class<?> beanClass = null;
         try {
-            beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+            Class<?> beanClass = Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName());
+            // 通过反射获取当前类的所有构造方法对象（包括私有和公有）
+            Constructor<?>[] candidates = beanClass.getDeclaredConstructors();
+            for (int i = 0; i < candidates.length; i++) {
 
-        // 通过反射获取所有的构造方法
-        Constructor<?>[] candidates = beanClass.getConstructors();
-        for (int i = 0; i < candidates.length; i++) {
-
-            Class<?>[] parameterTypes = candidates[i].getParameterTypes();
-            if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
-                continue;
+                Class<?>[] parameterTypes = candidates[i].getParameterTypes();
+                if (parameterTypes.length != bd.getConstructorArgumentValues().size()) {
+                    continue;
+                }
+                // 设置构造函数参数实例
+                argsToUse = new Object[parameterTypes.length];
+                valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
+                constructorToUse = candidates[i];
+                break;
             }
-            argsToUse = new Object[parameterTypes.length];
-            valuesMatchTypes(bd.getConstructorArgumentValues(), argsToUse);
-            constructorToUse = candidates[i];
-            break;
-        }
-        try {
+            // 使用带有参数的构造函数对象实现实例化 Bean
             return constructorToUse.newInstance(argsToUse);
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,7 +207,7 @@ public class BeanIocContainer {
 
     /**
      * 填充属性（依赖注入）
-     * 有 setter 方法，利用 PropertyDescriptor 的 Method.invoke()；没有 setter 方法，利用 Field 的 field.set()
+     * 有 setter 方法，利用 Method 的 Method.invoke()；没有 setter 方法（使用注解时），利用 Field 的 field.set()
      *
      * @param bd
      * @param bean
@@ -217,14 +215,27 @@ public class BeanIocContainer {
     private void populateBean(BeanDefinition bd, Object bean) {
         List<String> propertyNames = bd.getPropertyNames();
         try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
-            PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+//            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+//            PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();
+//            for (String propertyName : propertyNames) {
+//                Object propertyBean = getBean(propertyName);
+//                for (PropertyDescriptor pd : pds) {
+//                    if (pd.getName().equals(propertyName)) {
+//                        // 利用反射（Method.invoke()），通过 setter 方法将 bean 的字段关联到对象实例
+//                        pd.getWriteMethod().invoke(bean, propertyBean);
+//                        break;
+//                    }
+//                }
+//            }
+            // 通过反射获取当前类所有的方法对象（包括私有和公有）
+            Method[] methods = bean.getClass().getDeclaredMethods();
             for (String propertyName : propertyNames) {
-                Object propertyBean = getBean(propertyName);
-                for (PropertyDescriptor pd : pds) {
-                    if (pd.getName().equals(propertyName)) {
-                        // 利用反射（Method.invoke()），通过 setter 方法将 bean 的属性关联到对象实例
-                        pd.getWriteMethod().invoke(bean, propertyBean);
+                for (Method method : methods) {
+                    if (method.getName().equals("set" + upperCaseFirstChar(propertyName))) {
+                        // 获得方法参数实例
+                        Object propertyBean = getBean(propertyName);
+                        // 通过反射执行调用 setter() 方法。invoke：调用方法，propertyBean 作为方法的参数
+                        method.invoke(bean, propertyBean);
                         break;
                     }
                 }
@@ -232,5 +243,17 @@ public class BeanIocContainer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 首字母大写
+     *
+     * @param str
+     * @return
+     */
+    private String upperCaseFirstChar(String str) {
+        char chars[] = str.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return new String(chars);
     }
 }

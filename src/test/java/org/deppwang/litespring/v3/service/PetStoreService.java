@@ -5,7 +5,7 @@ import org.deppwang.litespring.v3.dao.AccountDao;
 public class PetStoreService {
     private AccountDao accountDao;
 
-    public void setAccountDao(AccountDao accountDao) {
+    public PetStoreService(AccountDao accountDao) {
         this.accountDao = accountDao;
     }
 

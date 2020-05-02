@@ -74,7 +74,9 @@ public class BeanIocContainer {
     }
 
     /**
-     * 通过 beanID 得到 BeanDefinition 中对应的全限定名，利用反射通过全限定名生成 Bean 实例
+     * 通过 beanID 得到 BeanDefinition 中对应的全限定名；
+     * 通过类加载器，根据 className（全限定名），得到其类对象；
+     * 通过类对象利用反射创建 Bean 实例
      *
      * @param beanID
      * @return
@@ -84,8 +86,9 @@ public class BeanIocContainer {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         String beanClassName = bd.getBeanClassName();
         try {
-            // 通过类加载器，根据 className（全限定名），得到其类对象，通过类对象利用反射创建 Bean 实例
+            // 通过类加载器，根据 className（全限定名），得到其类对象
             Class<?> clz = cl.loadClass(beanClassName);
+            // 通过类对象利用反射创建 Bean 实例
             return clz.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
