@@ -10,6 +10,8 @@ Spring 框架是 Java 开发的，Java 是面向对象的语言，所以 Spring 
 
 下面正文开始。
 
+<!--more-->
+
 ## 零、Spring 的作用
 
 在没有 Spring 框架的远古时代，我们业务逻辑一般长这样：
@@ -51,7 +53,7 @@ Spring 如何根据 xml 配置来实现实例化类？
 
 大致可以分为三步（配合源码 **v1** 阅读）：
 
-1. 从 xml 配置文件获取 Bean 信息：id、全限定名，将其作为 BeanDefinition（Bean 定义类）的属性
+1. 从 xml 配置文件获取 Bean 信息：id、beanClassName（路径），将其作为 BeanDefinition（Bean 定义类）的属性
 
    ```Java
    BeanDefinition bd = new BeanDefinition(id, beanClassName);
@@ -63,17 +65,13 @@ Spring 如何根据 xml 配置来实现实例化类？
    private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
    ```
 
-3. 当获取 Bean 实例时，通过类加载器，根据全限定名，得到其类对象，通过类对象利用**反射**创建 Bean 实例
+3. 当获取 Bean 实例时，通过类加载器，根据路径，得到其类对象，通过类对象利用**反射**创建 Bean 实例
 
    ```Java
    return Thread.currentThread().getContextClassLoader().loadClass(bd.getBeanClassName()).newInstance();
    ```
 
 关于类加载和反射，前者可以看看[《深入理解 Java 虚拟机》](https://book.douban.com/subject/34907497/)第 7 章，后者可以看看 [Spring 中的反射与反射的原理](https://depp.wang/2020/04/29/reflection-in-spring-and-reflection-principle/)。本文只学习 Spring，这两个知识点不做深入讨论。
-
-名词解释：
-
-- 全限定名：指编译后的 class 文件在 jar 包中的路径
 
 本节源码对应：**v1**
 
@@ -92,6 +90,10 @@ public class PetStoreService {
 当不默认 new 时，实现实例化 Bean 后，此时成员变量（属性）还为 null：
 
 ![](https://deppwang.oss-cn-beijing.aliyuncs.com/blog/2020-04-17-143303.png)
+
+<!--当一个 Bean 的成员变量类型是另一个 Bean 时，我们可以说一个 Bean 依赖于另一个 Bean。当不默认 new 时，就需要使用依赖注入（**D**ependency **I**njection，简称 DI）的方式设置依赖。依赖注入让属性不为 null，所以也可以称为填充属性。-->
+
+<!--Spring 通过依赖注入的方式实现填充属性。-->
 
 此时需要通过一种方式实现让属性不为 null，我们管这一步叫填充属性。
 
