@@ -7,7 +7,7 @@ public class BeanDefinition {
     // id 是 beanName（类名）
     private String id;
 
-    // 全限定名
+    // class 路径
     private String beanClassName;
 
     public BeanDefinition(String id, String beanClassName) {

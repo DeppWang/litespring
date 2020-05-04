@@ -97,7 +97,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
                     String beanClassName = annotationMetadata.getClassName();
                     if (beanId == null) {
-                        // 通过全限定名获取类名，并将首字母小写
+                        // 通过 class 路径获取类名，并将首字母小写
                         beanId = Introspector.decapitalize(ClassUtils.getShortName(beanClassName));
                     }
 

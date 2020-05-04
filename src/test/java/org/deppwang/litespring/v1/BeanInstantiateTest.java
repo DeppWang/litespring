@@ -5,10 +5,6 @@ import org.deppwang.litespring.v1.dao.AccountDao;
 import org.deppwang.litespring.v1.service.PetStoreService;
 import org.junit.Assert;
 import org.junit.Test;
-import sun.misc.Unsafe;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 
 public class BeanInstantiateTest {
 
