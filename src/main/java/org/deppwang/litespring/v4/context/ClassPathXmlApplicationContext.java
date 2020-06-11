@@ -125,7 +125,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
 
     /**
      * 利用字节码技术，将注解元数据存放在 AnnotationMetadata 中，一个 file 对应一个 AnnotationMetadata
-     *
+     * <p>
      * 待优化：去除 AnnotationMetadata，直接获取注解
      *
      * @param file
@@ -261,6 +261,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
                 Annotation ann = field.getAnnotation(Autowired.class);
                 // 根据是否有 Autowired 注解来决定是否注入
                 if (ann != null) {
+                    // 实际上，这里不是简单的通过 name 获取依赖，而是根据类型获取 getAutowiredBean(bean)
                     Object value = getBean(field.getName());
                     if (value != null) {
                         // 设置字段可连接，相当于将非 public（private、default、package） 更改为 public
@@ -270,9 +271,24 @@ public class ClassPathXmlApplicationContext implements BeanFactory {
                     }
                 }
             }
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private Object getAutowiredBean(Object bean) throws ClassNotFoundException {
+        Class<?> typeToMatch = bean.getClass();
+        Object res = null;
+        // 判断字段的类型是否跟 beanDefinitionMap 中 beanDefinition 的字段类型相同
+        for (BeanDefinition bd : this.beanDefinitionMap.values()) {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            Class<?> beanClass = cl.loadClass(bd.getBeanClassName());
+            // 判断字段的类型是否跟依赖的类型是否匹配
+            if (typeToMatch.isAssignableFrom(beanClass)) {
+                res = getBean(bd.getId());
+            }
+        }
+        return res;
     }
 
     /**

@@ -17,4 +17,8 @@ public class BeanDefinition {
 
         return this.beanClassName;
     }
+
+    public String getId() {
+        return id;
+    }
 }

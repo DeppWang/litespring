@@ -10,6 +10,7 @@ import org.deppwang.litespring.v4.stereotype.Component;
  * petStore 为 PetStoreService 在容器中的 id
  */
 @Component(value = "petStore")
+//@Component("petStore")
 public class PetStoreService {
     @Autowired
     private AccountDao accountDao;

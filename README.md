@@ -382,6 +382,6 @@ Spring 的原理离不开两个关键词：反射和注解。
 - @Bean 实现将任意 Bean 注入容器
 - @EnableAutoConfiguration 实现自动加载配置类到容器
 
-以上实现了一个简易的 Spring IoC 容器，顺便说了一下 Spring Boot 原理。Spring 还有很多重要功能，如：处理对象之间的依赖、管理 Bean 生命周期、AOP 的实现，等等。后续有机会再做一次分享。
+以上实现了一个简易的 Spring IoC 容器，顺便说了一下 Spring Boot 原理。Spring 还有很多重要功能，如：处理对象之间的依赖、管理 Bean 生命周期、AOP 的实现，等等。
 
 全文完。
